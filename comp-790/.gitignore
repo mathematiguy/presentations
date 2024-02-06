@@ -1,0 +1,10 @@
+presentation/*.aux
+presentation/*.nav
+presentation/*.pdf
+presentation/*.log
+presentation/*.out
+presentation/*.snm
+presentation/*.toc
+**/__pycache__
+**/*.log
+container.sif

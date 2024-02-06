@@ -1,0 +1,22 @@
+Bootstrap: library
+From: ubuntu:22.04
+
+%post
+
+    echo "Setting environment variables"
+    export DEBIAN_FRONTEND=noninteractive
+
+    apt-get update
+    apt-get install -y git build-essential
+
+    # Update and install necessary packages
+    apt-get update
+    apt-get install -y texlive texlive-latex-extra texlive-fonts-recommended texlive-fonts-extra cm-super texlive-xetex
+
+    # Download and install the Metropolis theme
+    mkdir -p /usr/share/texlive/texmf-dist/tex/latex/beamer/themes
+    cd /usr/share/texlive/texmf-dist/tex/latex/beamer/themes
+    git clone https://github.com/matze/mtheme.git metropolis
+    cd metropolis
+    make sty
+    texhash

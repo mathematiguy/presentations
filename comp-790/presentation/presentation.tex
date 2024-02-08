@@ -1,4 +1,15 @@
 \documentclass{beamer}
+
+\usepackage[backend=biber, style=apa, natbib=true]{biblatex}
+\usepackage{tabularx} % For adjustable-width tables
+\usepackage{booktabs} % For better table formatting
+\usepackage{siunitx} % For aligning numbers by decimal point
+\usepackage[T1]{fontenc}
+\usepackage[sfdefault]{biolinum}   %% Option 'sfdefault' only if the base font of the document is to be sans serif
+\usepackage{geometry} % Optional, to adjust page margins and make more room for the table
+
+\addbibresource{references.bib} % This tells LaTeX where your bibliography file is
+
 \usetheme{metropolis}
 
 \title{A Challenge Set Approach to Evaluating Machine Translation}
@@ -11,29 +22,438 @@
 \begin{document}
 \maketitle
 
+
 \begin{frame}{Table of Contents}
   \tableofcontents
 \end{frame}
 
 \section{Introduction}
 \begin{frame}{Introduction}
-  This is a frame showing the Metropolis theme in Beamer.
-  As mentioned in blah, ...
+  \textbf{The task:} Compose a set of challenging translation problems for English - French translation designed for neural systems
+
+  \medskip
+
+  \textbf{The goal:} To test machine translation competency with specific structural divergences between English and French
 \end{frame}
+
+\begin{frame}{Motivation}
+
+  As Neural Machine Translation (NMT) continues to improve, \\ MT systems for ``easy'' language pairs such as English/French or English/Spanish are much closer to human performance.
+
+  \medskip
+
+  This puts pressure on automatic evaluation metrics such as BLEU \parencite{papineni2002bleu}. Automatic evaluation is less reliable for highly competent models.
+
+\end{frame}
+
+\begin{frame}{Motivation}
+
+  Furthermore, it was easier to tell which phenomena were ill-handled by previous statistical systems - and why.
+
+  \medskip
+
+  Modern NMTs are kinda good enough that you need more competent assessors to say what its getting wrong.
+
+\end{frame}
+
+\begin{frame}{What is a challenge set?}
+
+  A challenge set is a set of sentences, each hand-crafted to test for a particular structural divergence between languages.
+
+  \medskip
+
+  The intent of each challenge sentence is to test exactly one system capability at a time.
+
+  \medskip
+
+  In this paper, the authors focused on English-French and all evaluations were conducted manually.
+  
+\end{frame}
+
 
 \section{Related work}
+
 \begin{frame}{Related work}
-  Some related work.
+
+  The \textbf{WMT 2016 News Translation Task} \parencite{bojar-etal-2016-findings} evaluated submissions according to BLEU and human judgments.
+
+  NMT systems were submitted to 9 out of 12 translation directions, won 4 of these and tied for second in the other 5.
+
 \end{frame}
 
-\section{Background}
-\begin{frame}{Background}
-  Some background information.
+\begin{frame}{Related work}
+
+  Controlled comparisons used BLEU to show that NMT out-performs strong PBMT systems on 30 translation directions from the \textbf{United Nations Parallel Corpus} \parencite{junczys2016neural} and the \textbf{IWSLT English-Arabic tasks} \parencite{durrani2017qcri} 
+
 \end{frame}
+
+\begin{frame}{Related work}
+
+  \textcite{bentivogli2016neural} automatically detected a number of error categories by comparing machine outputs to professional post-edits on \textbf{IWSLT 2015 English-German} evaluation data.
+
+  \medskip
+
+  NMT required less post-editing effort overall, with fewer lexical, morphological and word order errors.
+
+  \medskip
+
+  However, NMT performance degraded faster as a function of sentence length.
+
+\end{frame}
+
+\begin{frame}{Related work}
+
+  \textcite{toral2017multifaceted} examined the outputs of competition-grade systems for the 9 WMT 2016 directions that included NMT competitors.
+
+  \medskip
+
+  Their conclusions regarding morphological inflection and word order were similar to \textcite{bentivogli2016neural}.
+
+  \medskip
+
+  However they found an even greater degradation in NMT performance as sentence length increased.
+
+\end{frame}
+
+\begin{frame}{Related work}
+
+  \textcite{sennrich2016grammatical} approached targeted evaluation of NMT using \textit{contrastive translation pairs}.
+
+  \medskip
+
+  They automatically introduced specific errors in reference sentences, and then checked whether the NMT prefers the original reference or the corrupted version.
+
+  \medskip
+
+  They determined that a recently-proposed character-based model improves generalisation on unseen words, but at the cost of introducing new grammatical errors.
+
+\end{frame}
+
+\section{Evaluation}
+\begin{frame}{Evaluation}
+
+  To build their challenge set, \textcite{isabelle2017challenge} chose words that occurred at least 100 times in the training corpus.
+
+  \medskip
+
+  They classify the structural divergence phenomena they hope to capture in the challenge according to three main types: \textbf{morpho-syntactic}, \textbf{lexico-syntactic} and \textbf{purely syntactic}.
+
+\end{frame}
+
+\begin{frame}{Morpho-Syntactic divergence}
+
+  When translating a word into a morphologically rich language, there is a need to recover additional grammatically relevant information from the context of the target language word.
+
+  \medskip
+
+  One important case of morpho-syntactic divergence is \textit{subject-verb agreement}.
+
+  \medskip
+
+  English verb forms strongly underspecify their French counterparts morpho-syntactically.
+
+\end{frame}
+
+\begin{frame}{Subject-verb agreement}
+
+  Extracting the missing information required to force agreement in person, number and gender with the grammatical subject of a verb can be challenging.
+
+  \medskip
+
+  The agreement features of a co-ordinated noun phrase are a function of multiple elements:
+
+  \begin{enumerate}
+    \item The gender is feminine if all conjuncts are feminine, otherwise masculine wins
+    \item The conjunct with the smallest person ($p_1<p_2<p_3$) wins; and
+    \item The number is always plural when the coordination is ``et'' (``and'') but the case is more complex with ``ou'' (``or'').
+  \end{enumerate}
+
+\end{frame}
+
+\begin{frame}{Lexico-Syntactic divergence}
+
+  Syntactically governing words such as verbs may impose specific requirements on their complements: They subcategorize for complements of a certain syntactic type.
+
+  \medskip
+
+  However, a source and target language may have different requirements. One example is \textit{argument switching}.
+
+  \medskip
+
+  John misses Mary $\rightarrow$ Mary manque \`a John.
+
+\end{frame}
+
+\begin{frame}{Lexico-Syntactic divergence}
+
+  Another example of lexico-syntactic divergence is ``crossing movement'' verbs. Consider the following example:
+
+  \medskip
+
+  Terry swam across the river $\rightarrow$ Terry a travers\'e la rivi\`ere \`a la nage.
+
+  \medskip
+
+  The French translation could be glossed as ``Terry crossed the river by swimming'', however a literal translation such as ``Terry a nag\'e \`a travers la rivi\`ere'' would be incorrect.
+
+\end{frame}
+
+\begin{frame}{Syntactic divergence}
+
+  Syntactic divergences occur not due to the presence of a particular lexical item, but because of differences in the set of available syntactic patterns.
+
+  \medskip
+
+  Source language instances missing from the target language must then be mapped onto equivalent structures.
+
+\end{frame}
+
+
+\begin{frame}{Syntactic divergence}
+
+  To give an example, French and English are both SVO languages but in French pronouns must be phonetically attached to the verb on its left side when post-verbal complements are prenominalized.
+
+  \medskip
+
+  He gave Mary a book. $\rightarrow$ Il a donn\'e un livre \`a Marie.
+
+  He gave$_i$ it$_j$ to her$_k$. $\rightarrow$ Il le$_j$ lui$_k$ a donn\'e$_i$.
+
+\end{frame}
+
+\begin{frame}{Summary}
+
+  The actual test set includes several subcategories of each type (morpho-syntactic, lexico-syntactic and purely syntactic) of divergence.
+
+  \medskip
+
+  Each subcategory was then tested using at least 3 different test sentences.
+
+  \medskip
+
+  Test sentences were kept short in order to keep the targeted divergence in focus. There were 108 sentences included in the challenge set in total.
+
+\end{frame}
+
+\section{Machine translation systems}
+\begin{frame}{Machine translation systems}
+
+  They also trained state-of-the-art (for the time) neural and phrase based systems for English-French translation on data from the WMT 2014 evaluation.
+
+  Below is a breakdown of the training data they used to train their models:
+
+  \begin{table}[htbp]
+    \centering
+    \caption{Corpus Statistics}
+    \label{tab:corpus_stats}
+    \begin{tabular}{l|llll}
+      \toprule
+      Corpus & Lines & En Words & Fr Words \\
+      \midrule
+      Train & 12.1M & 304M & 348M \\
+      Mono & 15.9M & --- & 406M \\
+      Dev & 6003 & 138k & 155k \\
+      Test & 3003 & 71k & 81k \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+
+\end{frame}
+
+\begin{frame}{PBMT vs NMT}
+
+  The authors trained a PBMT baseline model, and an NMT model. Some thoughts:
+
+  \begin{enumerate}
+    \item The PBMT model was an Neural Network Joint Language Model (NNJM) which jointly models the target language and source language with target N-gram and source window.
+    \item They trained 2 PBMT models, PBMT-1 which is trained on identical data to the MNT system, and PBMT-2 which includes a French monolingual corpus. 
+  \end{enumerate}
+  
+  \medskip
+
+\end{frame}
+
+\begin{frame}{PBMT vs NMT}
+
+  \begin{enumerate}
+  \setcounter{enumi}{2}
+    \item The NMT model used a single-layer sequence to sequence architecture with attention
+    \item They also trained their own BPE model on the source and target corpora
+    \item They also evaluated Google's production system (GMNT), which at the time had recently moved to NMT.
+    \item Google's system uses at least 8 encoder + decoder layers and is trained on corpora 2-3 orders of magnitude greater than the WMT.
+  \end{enumerate}
+  
+  \medskip
+
+\end{frame}
+
+\begin{frame}{Experiments}
+
+  All four models (PBMT-1, PBMT-2, NMT and GMNT) were evaluated on the English-French challenge set by 3  native speakers of French, who rated each sentence as either a success or a failure.
+
+  \medskip
+
+  The corresponding translations were judged successful if and only if the translated verb correctly agrees with the translated subject.
+
+\end{frame}
+
+\begin{frame}{Results}
+
+  {\footnotesize
+    \begin{table}[htbp]
+      \centering
+      \caption{Transposed Comparison of Translation Models}
+      \label{tab:transposed_translation_models}
+      \begin{tabular}{lccccc}
+        \toprule
+        & PBMT-1 & PBMT-2 & NMT & Google NMT & Agreement \\
+        \midrule
+        Morpho-syntactic & 16\%   & 16\%   & 72\% & 65\% & 94\% \\
+        Lexico-syntactic & 42\%   & 46\%   & 52\% & 62\% & 94\% \\
+        Syntactic        & 33\%   & 33\%   & 40\% & 75\% & 81\% \\
+        Overall          & 31\%   & 32\%   & 53\% & 68\% & 89\% \\
+        \midrule
+        WMT BLEU         & 34.2   & 36.5   & 36.9 & ---  &  ---   \\
+        \bottomrule
+      \end{tabular}
+    \end{table}
+  }
+
+  The final column gives the proportion of system outputs on which all three annotators agreed.
+
+\end{frame}
+
+\begin{frame}{Quantitative comparison}
+
+  The PBMT models both perform better at the Lexico-syntactic examples, which the authors say reflects the fact that PBMT systems are naturally more attuned to lexical cues than to morphology or syntax.
+
+  \medskip
+
+  WMT BLEU scores correlate poorly with challenge-set performance.
+
+  \medskip
+
+  Inter-annotator agreement is close overall, but syntactic divergences appear to be harder to judge than other categories.
+
+\end{frame}
+
+\begin{frame}{Qualitative assessment of NMT}
+
+  Overall NMT beats PBMT in every category but particularly in the case of morpho-syntactic divergences.
+
+  \medskip
+
+  The large gap between NMT and GNMT indicates neural MT systems are extremely data hungry.
+
+  \medskip
+
+  However in spite of a significant data and compute gap, the GNMT model fails to reach 70\% overall on the challenge set.
+
+\end{frame}
+
+\begin{frame}{Weaknesses of neural MT}
+
+  {\tiny % Adjust the font size to fit the table on the page
+  \begin{table}[htbp]
+    \centering
+    \caption{Detailed Translation Model Comparison Across Subcategories}
+    \label{tab:detailed_translation_model_comparison}
+    \begin{tabularx}{\textwidth}{XXcccc}
+      \toprule
+      Category & Subcategory & N & PBMT-1 & NMT & Google NMT \\
+      \midrule
+      Morpho-Syntactic & Agreement across distractors & 3 & 0\% & 100\% & 100\% \\
+      & Through control verbs & 4 & 25\% & 25\% & 25\% \\
+      & With coordinated target & 3 & 17\% & 92\% & 75\% \\
+      & With coordinated source & 12 & 0\% & 100\% & 100\% \\
+      & Of past participles & 4 & 25\% & 75\% & 75\% \\
+      & Subjunctive mood & 3 & 33\% & 33\% & 67\% \\
+      \midrule
+      Lexico-Syntactic & Argument switch & 3 & 0\% & 0\% & 0\% \\
+      & Double-object verbs & 3 & 33\% & 67\% & 100\% \\
+      & Fail-to & 3 & 67\% & 100\% & 67\% \\
+      & Manner-of-movement verbs & 4 & 0\% & 0\% & 0\% \\
+      & Overlapping subcat frames & 5 & 60\% & 100\% & 100\% \\
+      & NP-to-VP & 3 & 33\% & 67\% & 67\% \\
+      & Factitives & 3 & 0\% & 33\% & 67\% \\
+      & Noun compounds & 9 & 67\% & 67\% & 78\% \\
+      & Common idioms & 6 & 50\% & 0\% & 33\% \\
+      & Syntactically flexible idioms & 2 & 0\% & 0\% & 0\% \\
+      \bottomrule
+    \end{tabularx}
+  \end{table}
+  }
+
+\end{frame}
+
+
+\begin{frame}{Weaknesses of neural MT}
+
+  {\tiny % Adjust the font size to fit the table on the page
+  \begin{table}[htbp]
+    \centering
+    \caption{Detailed Translation Model Comparison Across Subcategories}
+    \label{tab:detailed_translation_model_comparison}
+    \begin{tabularx}{\textwidth}{XXcccc}
+      \toprule
+      Category & Subcategory & N & PBMT-1 & NMT & Google NMT \\
+      \midrule
+      Syntactic & Yes-no question syntax & 3 & 33\% & 100\% & 100\% \\
+      & Tag questions & 3 & 0\% & 0\% & 100\% \\
+      & Stranded preps & 6 & 0\% & 0\% & 100\% \\
+      & Adv-triggered inversion & 3 & 0\% & 0\% & 33\% \\
+      & Middle voice & 3 & 0\% & 0\% & 0\% \\
+      & Fronted should & 3 & 67\% & 33\% & 33\% \\
+      & Clitic pronouns & 5 & 40\% & 80\% & 60\% \\
+      & Ordinal placement & 3 & 100\% & 100\% & 100\% \\
+      & Inalienable possession & 6 & 50\% & 17\% & 83\% \\
+      & Zero REL PRO & 3 & 0\% & 33\% & 100\% \\
+      \bottomrule
+    \end{tabularx}
+  \end{table}
+  }
+
+\end{frame}
+
 
 \section{Conclusion}
 \begin{frame}{Conclusion}
-  The concluding remarks.
+
+  With the exception of idiom processing, in all cases where a clear difference was observed the result was in favour of neural MT.
+
+  \medskip
+
+  The challenge set brings to light some important shortcomings of current neural MT, regardless of the massive amounts of data used for training.
+
+  \medskip
+
+  NMT impressive generalisations still seem brittle - NMT may appear to have mastered subject-verb agreement or inalienable possession only to trip over a rather obvious instantiation of those rules.
+
+\end{frame}
+
+\begin{frame}{Future work}
+
+  Human judgments are still difficult to scale, and attempts to resolve would be worthwhile if achieved.
+
+  \medskip
+
+  An automatic method for constructing a challenge set would be extremely useful.
+
+  \medskip
+
+  Localising a divergence within a difficult sentence pair would be another useful subtask.
+
+  \medskip
+
+  Lastly, how to train an MT system specifically to improve its performance on particular divergence phenomena.
+
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Bibliography}
+
+  \printbibliography
+
 \end{frame}
 
 \end{document}
+

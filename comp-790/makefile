@@ -8,11 +8,11 @@ VENV_PATH ?= venv
 .PHONY: run container shell sandbox sandbox-shell
 
 report: presentation/presentation.pdf
-presentation/presentation.pdf: presentation/presentation.tex
-	$(RUN) bash -c "(cd $(dir $@) && xelatex $(notdir $<) && xelatex $(notdir $<) && xelatex $(notdir $<))"
+presentation/presentation.pdf: presentation/presentation.tex presentation/references.bib
+	$(RUN) bash -c "(cd $(dir $@) && xelatex $(notdir $<) && biber $(basename $(notdir $<)) && xelatex $(notdir $<) && xelatex $(notdir $<))"
 
 clean:
-	rm presentation/*.aux presentation/*.nav presentation/*.pdf presentation/*.log presentation/*.out presentation/*.snm presentation/*.toc texput.log
+	rm -f presentation/*.aux presentation/*.nav presentation/*.pdf presentation/*.log presentation/*.out presentation/*.snm presentation/*.toc presentation/*.bcf presentation/*.run.xml presentation/*.bbl presentation/*.blg texput.log
 
 # Builds a Singularity container from the Singularity definition file.
 # Note: This command requires sudo privileges.

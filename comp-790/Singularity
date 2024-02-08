@@ -1,5 +1,5 @@
-Bootstrap: library
-From: ubuntu:22.04
+Bootstrap: docker
+From: texlive/texlive:latest-full
 
 %post
 
@@ -8,10 +8,6 @@ From: ubuntu:22.04
 
     apt-get update
     apt-get install -y git build-essential
-
-    # Update and install necessary packages
-    apt-get update
-    apt-get install -y texlive texlive-latex-extra texlive-fonts-recommended texlive-fonts-extra cm-super texlive-xetex
 
     # Download and install the Metropolis theme
     mkdir -p /usr/share/texlive/texmf-dist/tex/latex/beamer/themes
